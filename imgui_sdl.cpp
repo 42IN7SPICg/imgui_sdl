@@ -256,7 +256,7 @@ namespace
 		const float Divisor;
 	};
 
-	struct Rect
+	struct Bounds
 	{
 		float MinX, MinY, MaxX, MaxY;
 		float MinU, MinV, MaxU, MaxV;
@@ -273,9 +273,9 @@ namespace
 			return MinU == MaxU && MinU == whitePixel.x && MinV == MaxV && MaxV == whitePixel.y;
 		}
 
-		static Rect CalculateBoundingBox(const ImDrawVert& v0, const ImDrawVert& v1, const ImDrawVert& v2)
+		static Bounds CalculateBoundingBox(const ImDrawVert& v0, const ImDrawVert& v1, const ImDrawVert& v2)
 		{
-			return Rect{
+			return Bounds{
 				std::min({ v0.pos.x, v1.pos.x, v2.pos.x }),
 				std::min({ v0.pos.y, v1.pos.y, v2.pos.y }),
 				std::max({ v0.pos.x, v1.pos.x, v2.pos.x }),
@@ -465,7 +465,7 @@ namespace
 		CurrentDevice->UniformColorTriangleCache.Insert(key, std::move(cached));
 	}
 
-	void DrawRectangle(const Rect& bounding, SDL_Texture* texture, int textureWidth, int textureHeight, const Color& color, bool doHorizontalFlip, bool doVerticalFlip)
+	void DrawRectangle(const Bounds& bounding, SDL_Texture* texture, int textureWidth, int textureHeight, const Color& color, bool doHorizontalFlip, bool doVerticalFlip)
 	{
 		// We are safe to assume uniform color here, because the caller checks it and and uses the triangle renderer to render those.
 
@@ -500,12 +500,12 @@ namespace
 		}
 	}
 
-	void DrawRectangle(const Rect& bounding, const Texture* texture, const Color& color, bool doHorizontalFlip, bool doVerticalFlip)
+	void DrawRectangle(const Bounds& bounding, const Texture* texture, const Color& color, bool doHorizontalFlip, bool doVerticalFlip)
 	{
 		DrawRectangle(bounding, texture->Source, texture->Surface->w, texture->Surface->h, color, doHorizontalFlip, doVerticalFlip);
 	}
 
-	void DrawRectangle(const Rect& bounding, SDL_Texture* texture, const Color& color, bool doHorizontalFlip, bool doVerticalFlip)
+	void DrawRectangle(const Bounds& bounding, SDL_Texture* texture, const Color& color, bool doHorizontalFlip, bool doVerticalFlip)
 	{
 		int width, height;
 		SDL_QueryTexture(texture, nullptr, nullptr, &width, &height);
@@ -600,7 +600,7 @@ namespace ImGuiSDL
 						const ImDrawVert& v1 = vertexBuffer[indexBuffer[i + 1]];
 						const ImDrawVert& v2 = vertexBuffer[indexBuffer[i + 2]];
 
-						const Rect& bounding = Rect::CalculateBoundingBox(v0, v1, v2);
+						const Bounds& bounding = Bounds::CalculateBoundingBox(v0, v1, v2);
 
 						const bool isTriangleUniformColor = v0.col == v1.col && v1.col == v2.col;
 						const bool doesTriangleUseOnlyColor = bounding.UsesOnlyColor();
